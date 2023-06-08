@@ -9,10 +9,13 @@
     "build:static": "next build && next out"
   },
   "dependencies": {
-    "@mui/icons-material": "^5.11.9",
-    "@mui/material": "^5.6.4",
+    "@apollo/client": "^3.7.12",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.11.9",
+    "@mui/material": "^5.6.4",
+    "apollo-upload-client": "^17.0.0",
+    "graphql": "^16.6.0",
     "material-icons": "^1.10.11",
     "next": "^13.1.7-canary.21",
     "react": "^18.2.0",

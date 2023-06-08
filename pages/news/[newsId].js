@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import styles from '../../styles/news.module.scss'
 import CommentBox from '../../components/CommentBox'
 import Header from '../Header'
@@ -6,6 +6,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/router';
 import Router from 'next/router';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { useQuery, gql, useLazyQuery, useMutation } from '@apollo/client';
+import { LOAD_SPECIFIC_NEWS } from '../../components/GraphQl/Queries';
+import { secondClient } from '../utils/App';
+import { CREATE_USER_COMMENT } from '../../components/GraphQl/Mutation';
+import { GET_NEWS_COMMENTS } from '../../components/GraphQl/Queries';
+import { GET_NEWS_BY_FILTER } from '../../components/GraphQl/Queries';
 
 const data = {
     title: "वैदेशिक रोजगारीको क्रममा हुने जोखिम न्यूनीकरण हुने प्रवर्द्धनात्मक कार्यक्रमहरू सञ्चालन आवस्यक",
@@ -43,41 +49,145 @@ const relatedData = [
     },
 ]
 
-const News = () => {
+const News = (props) => {
 
     const router = useRouter()
 
+    const id = router.query.newsId
+
+    const [ newsComment, setNewsComment ] = useState(null)
+
+    const [ categoriesNews, setCategoriesNews ] = useState(null)
+
+    console.log(id,"odd")
+
+    const [ getCategoriesNewsFunction, getCategoriesNews ] = useLazyQuery(GET_NEWS_BY_FILTER, {
+        fetchPolicy: 'no-cache',
+        client: secondClient,
+        onError: (err) => {
+            console.log(err, "filtered error")
+            setErrorInternal(err.message)
+        },
+
+        onCompleted: (data) => {
+            console.log(data, "filteredNews")
+            setCategoriesNews(data?.news?.page?.edges)
+
+        }
+    })
+
+console.log(router.query.newsId)
+
+    const [ specificNewsFunction, specificNewsData  ] = useLazyQuery(LOAD_SPECIFIC_NEWS, {
+        fetchPolicy: 'no-cache',
+        client: secondClient,
+        onError: (err) => {
+            console.log(err, "detailsError")
+            setErrorInternal(err.message)
+        },
+
+        onCompleted: (data) => {
+            console.log(data, "newsData")
+            getCategoriesNewsFunction({ variables:{first:20,category:data?.newsById?.category?.id} })
+
+        }
+    })
+
+  
+
+
+
+    
+
+
+
+const [getNewsComments, newsCommentsData] = useLazyQuery(GET_NEWS_COMMENTS, {
+    client: secondClient,
+
+    fetchPolicy: 'no-cache',
+    onError: (err) =>
+    {
+        console.log('graphql error shovan ', JSON.stringify(err))
+    },
+    onCompleted: (data) =>
+   {
+       console.log(data,"Kerrrraa")
+       setNewsComment(data.newsComments.page.edges)
+
+   }
+});
+
+useEffect(()=>{
+    if(id){
+        specificNewsFunction({variables:{id:+id}})
+        getNewsComments({ variables:{ first:50, newsId:+id } })
+    }
+},[id])
+
+const [createNewsComment, newsCommentCreateData] = useMutation(CREATE_USER_COMMENT, {
+    client: secondClient,
+    refetchQueries: [{ query:GET_NEWS_COMMENTS, variables:{ first:50, newsId:+id} }, "News"],
+    onError: (err) =>
+    {
+        console.log('comment error 2', err)
+
+
+    },
+    onCompleted: (data) =>
+    {
+        getNewsComments({ variables:{ first:50, newsId:+id } })
+
+        console.log(data,"data")
+    },
+
+});
+
+
+
+const newsData = specificNewsData?.data?.newsById
+console.log(newsData,"newsData")
+console.log(categoriesNews,"categoriesNews")
+
+if(!newsData){
+    return
+}
+
     return (
         <>
-            <Header />
+            <Header showCategories={false} />
 
             <div className={styles.newsContainer}>
                 <ArrowBackIcon style={{ marginBottom: 40, cursor: "pointer" }} onClick={() => { Router.back() }} className={styles.backIcon} />
-                <div className={styles.newsTitle}>{data.title}</div>
+                <div className={styles.newsTitle}>{newsData.title}</div>
                 <div style={{ display: "flex", gap: "4px", alignItems: "center", marginTop: "12px" }} >
                     <DateRangeIcon style={{ fontSize: "16px", color: "gray" }} />
-                    <div className={styles.newsDate}>{data.date}</div>
+                  <div styles={styles.date}>{new Date(newsData.createdAt).toLocaleString()}</div>
                 </div>
                 <div className={styles.newsContentContainer}>
                     <div className={styles.newsContent}>
-                        <img src={data.img} className={styles.newsImage} />
-                        <div className={styles.newsDesc}>{data.desc}</div>
-                        <CommentBox />
+                    { newsData?.images.length>0 && (
+                        <img src={newsData?.images[0]?.imageURL} className={styles.newsImage} />
+                    ) }
+                        <div className={styles.newsDesc}>{newsData.content}</div>
+                        <CommentBox newsComment={newsComment} commentHandler={createNewsComment} />
                     </div>
                     <div className={styles.relatedTopics}>
                         <div className={styles.relatedNewsTitle}>Related News</div>
                         <div className={styles.divider}>
                             <div className={styles.dividerColor}></div>
                         </div>
-                        {relatedData.map((data, index) => {
+                        {categoriesNews && categoriesNews.length>0 && categoriesNews.map((data, index) => {
+                            console.log(data,"data")
                             return (
-                                <div className={styles.relatedNewsBox} key={index} >
-                                    <img src={data.img} className={styles.relatedNewsImage} />
+                                <div onClick={()=>router.push(`/news/${data?.node?.id}`)} className={styles.relatedNewsBox} key={index} >
+                                    { data?.node?.images.length>0 && (
+                                        <img src={data?.node?.images[0].imageURL} className={styles.relatedNewsImage} />
+                                    ) }
                                     <div>
-                                        <div className={styles.relatedNewsTitle}>{data.title}</div>
+                                        <div className={styles.relatedNewsTitle}>{data?.node?.title}</div>
                                         <div style={{ display: "flex", gap: "4px", alignItems: "center", marginTop: "12px" }} >
                                             <DateRangeIcon style={{ fontSize: "16px", color: "gray" }} />
-                                            <div className={styles.newsDate}>14 Jul, 2022 13:08 PM</div>
+                                            <div className={styles.newsDate}>{new Date(data?.node?.createdAt).toLocaleString()}</div>
                                         </div>
                                     </div>
                                 </div>

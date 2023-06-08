@@ -5,11 +5,11 @@ import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 
 const AddComment = ( props ) => {
 
-    const { closeHandler } = props ;
+    const { closeHandler,commentHandler, comment } = props ;
     return (
-        <div className={styles.addCommentBox} >
+        <div onClick={commentHandler} className={styles.addCommentBox} >
             <ClearOutlinedIcon onClick={closeHandler} style={{color:"red", cursor:"pointer"}} />
-            <CommentBox drawer />
+            <CommentBox  comment={comment} drawer />
         </div>
     )
 }

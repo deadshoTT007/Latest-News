@@ -1,15 +1,22 @@
 import React, { useState } from 'react'
 import styles from '../styles/commentbox.module.scss'
+import { useRouter } from 'next/router';
 
 const CommentBox = ( props ) => {
 
-  const { drawer } = props ;
+  const { drawer, comment, commentHandler, newsComment } = props ;
 
   const [commentText, setCommentText] = useState("")
+
+  const router = useRouter()
+
+  const id = router.query.newsId;
 
   const onChangeHandler = (e) => {
     setCommentText(e.target.value)
   }
+
+console.log(comment,"comment")
 
   const comments = [
     {
@@ -41,13 +48,18 @@ const CommentBox = ( props ) => {
   return (
     <div  style={{marginTop:drawer?"40px":"100px"}} className={styles.commentBox}>
       <div className={styles.commentTitle}>Comments </div>
-        { comments.map((comment,index)=>{
+        { newsComment && newsComment.length>0 && newsComment.map((comment,index)=>{
+          console.log(comment,"cc")
           return (
             <div key={index} className={styles.userComment}>
-              <img className={styles.userCommentImage} src={comment.image} alt="" />
+              { comment?.node?.authorDetail?.profile?.image ? (
+                <img  className={styles.userCommentImage} src={comment?.node?.authorDetail?.profile?.image} alt="" />
+              ):
+              <div className={styles.userCommentImage}/>
+              }
               <div>
-                <div className={styles.userCommentName}>{comment.username}</div>
-                <div className={styles.userCommentTitle}>{comment.commentTitle}</div>
+                <div className={styles.userCommentName}>{comment?.node?.authorDetail?.name}</div>
+                <div className={styles.userCommentTitle}>{comment?.node?.content}</div>
               </div>
 
             </div>
@@ -61,7 +73,7 @@ const CommentBox = ( props ) => {
       <div style={{marginBottom:20}} className={styles.commentTitle}>Write a Comment</div>
         <textarea onChange={onChangeHandler} className={styles.commentInput} placeholder="Add a comment" />
         {commentText && (
-          <button className={styles.commentButton} >Write a comment</button>
+          <button onClick={()=>commentHandler({ variables: { content: commentText, news: +id } })} className={styles.commentButton} >Write a comment</button>
         )}
       </div>
     </div>
