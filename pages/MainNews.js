@@ -20,14 +20,17 @@ import { useLazyQuery } from '@apollo/client';
 import { CREATE_COMMENT_REACTION } from '../components/GraphQl/Mutation';
 import { GET_NEWS_BY_FILTER } from '../components/GraphQl/Queries';
 
-const MainNews = ({category}) => {
+const MainNews = ({category, userData}) => {
 
     // const { error:error1, loading:loaging1, data:data1 } = useQuery(LOAD_NEWS,{
     //     client:secondClient
     // })
 
+
+
     const [ newsDataFunction, {data:data1} ] = useLazyQuery(GET_NEWS_BY_FILTER,{
         client: secondClient,
+        fetchPolicy:"no-cache",
         onError: (err) =>
         {
             console.log('graphql error shovan profile', JSON.stringify(err))
@@ -41,7 +44,7 @@ const MainNews = ({category}) => {
     })
 
         useEffect(()=>{
-            newsDataFunction({variables:{ first:50, category:category }})
+            newsDataFunction({variables:{ first:10, category:category }})
         },[category])
 
     const [ comments, setComments ] = useState()
@@ -50,7 +53,12 @@ const MainNews = ({category}) => {
 
     const [ openCommentDrawer, setOpenCommentDrawer ] = useState(false)
 
-    
+        
+    const nextHandler = () => {
+        console.log("kler")
+        newsDataFunction({variables:{ first:10, category:category }})
+
+    }
 
 
     const closeCommentDrawer = () => {
@@ -112,10 +120,13 @@ const MainNews = ({category}) => {
         }
     });
 
+    console.log(userData,"userData")
 
     const likeHandler = (id,like) => {
-        if(!like){
+        console.log(like,"like")
+        if(!userData){
             router.push('/login')
+
         }
         console.log(like,"like")
         if(!like){
@@ -148,8 +159,7 @@ const MainNews = ({category}) => {
        { openCommentDrawer &&  <AddComment commentHandler={commentHandler} comment={comments} closeHandler={closeCommentDrawer} /> } 
         <div className={styles.mainNewsContainer}>
             <div className={styles.recommendedNewsContainer}>
-                { newsDatas && newsDatas.length>0 && newsDatas.map((news,index)=>{
-                    console.log(news,"news")
+                { newsDatas && newsDatas.length>0 ? newsDatas.map((news,index)=>{
                     let marginTop="40px";
                     if(index==0){
                         marginTop=0
@@ -163,7 +173,7 @@ const MainNews = ({category}) => {
                         <div className={styles.recommendedTitle}>{news.node?.title}</div>
                         <div className={styles.dateContainer}>
                         <DateRangeIcon style={{ fontSize: "16px", color: "gray" }} />
-                        <div className={styles.recommendedDate}>{news.node?.createdAt}</div>
+                        <div className={styles.recommendedDate}>{new Date(news?.node?.createdAt).toLocaleString()}</div>
                         </div>
                         <div className={styles.recommendedDesc}>{news.node?.content}</div>
                         <div className={styles.interactions}>
@@ -171,7 +181,7 @@ const MainNews = ({category}) => {
                             <div className={styles.likeCount}>{news.node?.likeCount}</div>
                             <ThumbUpOutlinedIcon  onClick={()=>likeHandler(news?.node?.id,news?.node?.like)}  style={{fontSize:20,color:`${news?.node?.like?"blue":"gray"}`}} />
                             </div>
-                            <div onClick={()=>openCommentDrawerHandler(news?.node?.id,10)} className={styles.interactionsBox}>
+                            <div  className={styles.interactionsBox}>
                             <div className={styles.commentCount}>{news.node.commentCount}</div>
                             <CommentOutlinedIcon   style={{fontSize:20,color:"gray"}} />
                             </div>
@@ -183,8 +193,12 @@ const MainNews = ({category}) => {
                     </div>
                 </div>
                     )
-                }) }
+                }):
+                <div>Loading ....</div>
+            }
+            <div onClick={nextHandler} style={{padding:20,cursor:"pointer"}} className={styles.nextButton} >Next</div>
             </div>
+
 
             <div className={styles.relatedTopics}>
                         <div className={styles.relatedNewsTitle}>Top Ads</div>

@@ -27,10 +27,10 @@ const Login = () => {
     const registerForm = {
         fullName: {
           elementConfig: {
-            type: "text",
-            placeholder: "Your fullname",
+            type: "text ",
+            placeholder: "Enter phone number",
             name: "fullName",
-            label: 'Full Name'
+            label: 'Enter Phone Number'
           },
           //value: "saj",
           value: '',
@@ -225,7 +225,7 @@ const Login = () => {
            <div className={styles.register}>
         <div className={styles.registerleft}></div>
         <div className={styles.registerrightlogin}>
-        <ArrowBackIcon style={{marginTop:"80px", marginBottom:"20px"}} onClick={()=>router.push('/')} />
+        <ArrowBackIcon style={{marginTop:"80px", marginBottom:"20px", cursor:"pointer"}} onClick={()=>router.push('/')} />
           <div style={{ fontSize: "26px", fontWeight: "600", marginBottom: "30px" }} > Login  </div>
           <div className={styles.registerText}>Don't have an account?<span onClick={()=>router.push('/register')} className={styles.registerLink}> Register</span></div>
           <form>

@@ -153,6 +153,12 @@
 
 }
 
+.nextButton {
+    &:hover{
+        color: blue;
+    }
+}
+
 @media screen and (max-width:1300px){
     .mainNewsContainer {
         // grid-template-columns: 1fr;

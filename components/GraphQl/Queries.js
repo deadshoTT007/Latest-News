@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const LOAD_NEWS = gql`
-query{news(first:50){
+query{news(first:10, getRecommended: true){
   page{
     edges{
       cursor
@@ -212,7 +212,7 @@ query newsCat{
 
 export const GET_NEWS_BY_FILTER = gql`
   query getNewsByFilter($first:Float, $category:Int){
-  news(first:$first,filterNewsInput:{category:$category} ){
+  news(first:$first,filterNewsInput:{category:$category}){
     page{
     edges{
       cursor

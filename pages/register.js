@@ -24,6 +24,7 @@ import { ACCOUNT_REGISTER_WITH_PHONE } from '../components/GraphQl/Mutation';
 import { GET_NEW_CATEGORIES } from '../components/GraphQl/Queries';
 import { CREATE_USER_INTEREST } from '../components/GraphQl/Mutation';
 import { OTP_VERIFICATION } from '../components/GraphQl/Mutation';
+import Tag from '../components/Tag';
 
 const registerForm = {
   fullName: {
@@ -134,9 +135,9 @@ const RegisterForm = (props) => {
 
   const router = useRouter()
 
-  const [showOTP, setShowOTP] = useState(true)
+  const [showOTP, setShowOTP] = useState(false)
 
-  const [userPreference, setUserPreference] = useState(false)
+  const [userPreference, setUserPreference] = useState(true)
 
   const [showForm, setShowForm] = useState(false)
 
@@ -313,7 +314,7 @@ const RegisterForm = (props) => {
 
   const categoryHandler = (cat) => {
     console.log(cat, "cat")
-    setCat(pre=>[...pre,cat])
+    setCat(pre=>new Set([...pre,cat]))
   }
 
   const otpChangeHandler = (e) => {
@@ -348,7 +349,8 @@ const RegisterForm = (props) => {
 
   const userPreferenceHandler = (e) => {
     e.preventDefault()
-    createUserInterest({ variables: { newsCatIds: cat } })
+    console.log(cat,"cat user")
+    createUserInterest({ variables: { newsCatIds: Array.from(cat) } })
   }
 
 
@@ -414,9 +416,10 @@ const RegisterForm = (props) => {
           <>
             <div className={styles.userPreference}>User Preference</div>
             <div className={styles.userSelect} name="cars" id="cars">
-              {categories && categories.length > 0 && categories.map((cat, index) => {
+              {categories && categories.length > 0 && categories.map((category, index) => {
+                console.log(typeof cat, cat, "hawacat")
                 return (
-                  <div className={`${styles.categoriesItem}`} onClick={() => categoryHandler(cat.id)} vacatue={cat.id}>{cat.name}</div>
+                  <Tag name={category.name} id={category.id}  categoryHandler={categoryHandler} />
                 )
               })}
 

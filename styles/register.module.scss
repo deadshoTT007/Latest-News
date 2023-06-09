@@ -246,6 +246,21 @@ margin-bottom: 30px;
     }
 }
 
+.activeCategoriesItem {
+    display: inline-block;
+    background-color: #F5F5F5;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-transform: capitalize;
+    width: fit-content;
+    // flex: 1;
+    font-weight: 600;
+    background-color: rgb(0, 141, 243);
+    color: #fff;
+
+
+}
+
 .userSelect {
     display: flex;
 }

@@ -10,6 +10,7 @@ import {
   
   export const getServerUrl = () => {
     let url = "https://ronb-tes.calcgen.com";
+    // let url = 'http://192.168.0.20:8000'
     if (process.env.NODE_ENV === "production") {
       //     url = `https://${process.env.NEXT_PUBLIC_API_URI}/api`
       url = `https://ronb-tes.calcgen.com`;
@@ -18,6 +19,7 @@ import {
   };
   export const getSecondServerUrl = () => {
     let url = "https://ronb-tes.calcgen.com";
+    // let url = "http://192.168.0.20:3000";
     if (process.env.NODE_ENV === "production") {
       //     url = `https://${process.env.NEXT_PUBLIC_API_URI}/api`
       url = `https://ronb-tes.calcgen.com`;
@@ -27,6 +29,7 @@ import {
   
   const httpLink = createUploadLink({
     uri: `${getServerUrl()}/graphql/`,
+    // uri: `${getServerUrl()}/graphql/`,
     credentials: "include",
   
     // uri: 'http://206.189.141.84:8002/graphql/',
@@ -66,6 +69,8 @@ import {
   
   const httpLinks = createUploadLink({
     uri: `${getSecondServerUrl()}/graphql-nest/`,
+    // uri: `${getSecondServerUrl()}/graphql/`,
+    
     credentials: "include",
   });
   

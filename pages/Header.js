@@ -12,8 +12,10 @@ import { USER_LOGOUT } from '../components/GraphQl/Mutation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-const Header = ({ categorySelectHandler, category, showCategories=null }) => {
+const Header = ({ categorySelectHandler, category, showCategories=null, userData, setUserData }) => {
     console.log(category,"headerCategory")
+
+    console.log(userData,"headeruserData")
 
     const [focus, setFocus] = useState(false)
 
@@ -21,7 +23,8 @@ const Header = ({ categorySelectHandler, category, showCategories=null }) => {
 
     const [dropdownShow, setDropdownShow] = useState(false)
 
-    const [userData, setUserData] = useState(null)
+
+    console.log(userData,"userData")
 
     console.log(userData, "userData")
 
@@ -49,10 +52,12 @@ const Header = ({ categorySelectHandler, category, showCategories=null }) => {
 
     const router = useRouter()
 
-    const logoutHandler = () => {
+    const logoutHandler = async() => {
         userLogOut();
         deleteTokenCookie();
-        setUserData(localStorage.setItem("login_data", JSON.stringify({ name: "", id: "" })));
+        await localStorage.removeItem('login_data')
+        setUserData(localStorage.getItem('login_data'))
+        // setUserData(localStorage.setItem("login_data", JSON.stringify({ name: "", id: "" })));
     }
 
     const [createCommentReaction, createCommentReactionData] = useMutation(CREATE_COMMENT_REACTION, {
@@ -70,7 +75,7 @@ const Header = ({ categorySelectHandler, category, showCategories=null }) => {
     });
 
     useEffect(() => {
-        setUserData(JSON.parse(localStorage.getItem("login_data")))
+        // setUserData(JSON.parse(localStorage.getItem("login_data")))
     }, [])
 
 
